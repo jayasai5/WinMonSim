@@ -7,15 +7,32 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp
 {
+    class Window {
+        public string WindowName { get; set; }
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left;        // x position of upper-left corner
+            public int Top;         // y position of upper-left corner
+            public int Right;       // x position of lower-right corner
+            public int Bottom;      // y position of lower-right corner
+        }
+        public RECT WindowCoordinates { get; set; }
+        public IntPtr WindowHandle { get; set; }
+    }
     class Program
     {
         public delegate bool EnumDelegate(IntPtr hWnd, int lParam);
+        
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool IsWindowVisible(IntPtr hWnd);
         [DllImport("user32.dll")]
         public static extern IntPtr GetWindow(IntPtr hWnd, GetWindow_Cmd uCmd);
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetWindowRect(HandleRef hWnd, out Window.RECT lpRect);
         public enum GetWindow_Cmd : uint
         {
             GW_HWNDFIRST = 0,
@@ -37,16 +54,23 @@ namespace ConsoleApp
             EnumDelegate lpEnumCallbackFunction, IntPtr lParam);
         static void Main(string[] args)
         {
-            var collection = new List<string>();
+            var collection = new List<Window>();
             Program.EnumDelegate filter = delegate (IntPtr hWnd, int lParam)
             {
                 StringBuilder strbTitle = new StringBuilder(255);
                 int nLength = Program.GetWindowText(hWnd, strbTitle, strbTitle.Capacity + 1);
                 string strTitle = strbTitle.ToString();
-
-                if (Program.IsWindowVisible(hWnd) && !string.IsNullOrEmpty(strTitle) && GetWindow(hWnd, GetWindow_Cmd.GW_OWNER) != null)
+                Window wnd = new Window();
+                if (Program.IsWindowVisible(hWnd) && !string.IsNullOrEmpty(strTitle))
                 {
-                    collection.Add(strTitle);
+                    wnd.WindowHandle = hWnd;
+                    wnd.WindowName = strTitle;
+                    Window.RECT coordinates;
+                    if (Program.GetWindowRect(new HandleRef(null, hWnd), out coordinates))
+                        wnd.WindowCoordinates = coordinates;
+                    else
+                        wnd.WindowCoordinates = new Window.RECT();
+                    collection.Add(wnd);
                 }
                 return true;
             };
@@ -55,7 +79,8 @@ namespace ConsoleApp
             {
                 foreach (var item in collection)
                 {
-                    Console.WriteLine(item);
+                    Console.WriteLine("window Name:"+ item.WindowName+" (x,y): (" + item.WindowCoordinates.Left + "," + item.WindowCoordinates.Top 
+                        + "),(x,y): (" + item.WindowCoordinates.Right  + "," + item.WindowCoordinates.Bottom +")");
                 }
             }
             Console.Read();
