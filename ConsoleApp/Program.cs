@@ -43,21 +43,12 @@ namespace ConsoleApp
             public System.Drawing.Rectangle rcNormalPosition;
         }
 
-        const UInt32 SW_HIDE = 0;
-        const UInt32 SW_SHOWNORMAL = 1;
-        const UInt32 SW_NORMAL = 1;
-        const UInt32 SW_SHOWMINIMIZED = 2;
-        const UInt32 SW_SHOWMAXIMIZED = 3;
-        const UInt32 SW_MAXIMIZE = 3;
-        const UInt32 SW_SHOWNOACTIVATE = 4;
-        const UInt32 SW_SHOW = 5;
-        const UInt32 SW_MINIMIZE = 6;
-        const UInt32 SW_SHOWMINNOACTIVE = 7;
-        const UInt32 SW_SHOWNA = 8;
-        const UInt32 SW_RESTORE = 9;
+        private const UInt32 SW_MAXIMIZE = 3;
+        private const UInt32 SW_MINIMIZE = 2;
         [DllImport("user32.dll", EntryPoint = "ShowWindow", SetLastError = true)]
         public static extern int ShowWindow(IntPtr hWnd, uint nCmdShow);
-
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
@@ -120,8 +111,12 @@ namespace ConsoleApp
             myRect.Y = window.WindowCoordinates.Top;
             myRect.Width = (window.WindowCoordinates.Right - window.WindowCoordinates.Left)-1;
             myRect.Height = (window.WindowCoordinates.Bottom - window.WindowCoordinates.Top)-1;
-                Console.WriteLine(window.WindowName);
+            Console.WriteLine(window.WindowName);
+            StringBuilder className = new StringBuilder(256);
+            GetClassName(window.WindowHandle, className, className.Capacity);
+            if (windowPlacement.showCmd == 1&&className.ToString()!= "ApplicationFrameWindow"&&className.ToString()!= "Windows.UI.Core.CoreWindow") {
                 new Border().HighLight(myRect, Program.BorderWidth);
+            }
         }
     }
 }
