@@ -1,4 +1,4 @@
-﻿namespace ConsoleApp
+﻿namespace WinSim
 {
     partial class Border
     {

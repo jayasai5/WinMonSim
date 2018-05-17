@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"><?define WinSim_TargetDir=$(var.WinSim.TargetDir)?>
+	<Product Id="80BFAE00-E05E-4B5B-8EF4-9FEB84C4F2A9" Name="WinSim" Language="1033" Version="1.0.0.0" Manufacturer="Unimelb" UpgradeCode="9e3e4077-a09c-47da-b1f5-22443ebd6599">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate />
+
+		<Feature Id="ProductFeature" Title="WinSim" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+		</Feature>
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="WinSim" />
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="WinSim.exe" Guid="7f1a0a2e-2021-4868-806b-3f4fcaa6b91f">
+        <File Id="WinSim.exe" Name="WinSim.exe" Source="$(var.WinSim_TargetDir)WinSim.exe" />
+      </Component>
+      <Component Id="WinSim.exe.config" Guid="d3300ff0-1d04-4245-9f08-fcc7bff82a42">
+        <File Id="WinSim.exe.config" Name="WinSim.exe.config" Source="$(var.WinSim_TargetDir)WinSim.exe.config" />
+      </Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>

@@ -9,23 +9,21 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ConsoleApp
+namespace WinSim
 {
     public partial class Border : Form
     {
         public Rectangle InnerRectangle;
         public Rectangle OuterRectangle;
         public int BorderWidth;
-        public Color FillColor = Color.Blue;
-        public Color BorderColor = Color.Blue;
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cX, int cY, uint uFlags);
 
-        public Border()
+        public Border(Color BorderColor)
         {
             InitializeComponent();
-            BackColor = FillColor;
+            BackColor = BorderColor;
             ForeColor = BorderColor;
             base.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             base.MaximizeBox = false;
