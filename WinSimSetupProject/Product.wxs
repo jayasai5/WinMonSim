@@ -8,17 +8,40 @@
 
 		<Feature Id="ProductFeature" Title="WinSim" Level="1">
 			<ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="ApplicationShortcutDesktop" />
 		</Feature>
 	</Product>
 
 	<Fragment>
-		<Directory Id="TARGETDIR" Name="SourceDir">
-			<Directory Id="ProgramFilesFolder">
-				<Directory Id="INSTALLFOLDER" Name="WinSim" />
-			</Directory>
-		</Directory>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="WinSim" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="WinSim">
+        </Directory>
+        <Directory Id="DesktopFolder" Name="Desktop"></Directory>
+      </Directory>
+    </Directory>
 	</Fragment>
-
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="954D3582-312F-4EE9-878F-C00D85291B11">
+          <Shortcut Id="ApplicationStartMenuShortcut" Name="WinSim" Description="Opens the UI for creating shortcuts" Target="[INSTALLFOLDER]WinSim.exe" WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />     
+        <RegistryValue Root="HKCU" Key="Software\WinSim" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+     
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="ApplicationShortcutDesktop" Guid="FC31A3BC-346E-4462-81CB-1687B4F01663">
+          <Shortcut Id="ApplicationDesktopShortcut" Name="WinSim" Description="Opens the UI for creating shortcuts" Target="[INSTALLFOLDER]WinSim.exe" WorkingDirectory="INSTALLFOLDER" />
+              <RegistryValue Root="HKCU" Key="Software\WinSim" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+        <RemoveFolder Id="RemoveDesktopFolder" Directory="DesktopFolder" On="uninstall" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
 	<Fragment>
 		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
       <Component Id="WinSim.exe" Guid="7f1a0a2e-2021-4868-806b-3f4fcaa6b91f">
@@ -27,6 +50,13 @@
       <Component Id="WinSim.exe.config" Guid="d3300ff0-1d04-4245-9f08-fcc7bff82a42">
         <File Id="WinSim.exe.config" Name="WinSim.exe.config" Source="$(var.WinSim_TargetDir)WinSim.exe.config" />
       </Component>
+      <Component Id="MetroFramework.dll" Guid="d50295d5-47cb-448b-8a7f-8ec1ec9d5348">
+        <File Id="MetroFramework.dll" Name="MetroFramework.dll" Source="$(var.WinSim_TargetDir)MetroFramework.dll" />
+      </Component>
+      <Component Id="MetroFramework.Fonts.dll" Guid="01d8497c-e854-48fb-8ed1-1a683a76209e">
+        <File Id="MetroFramework.Fonts.dll" Name="MetroFramework.Fonts.dll" Source="$(var.WinSim_TargetDir)MetroFramework.Fonts.dll" />
+      </Component>
 		</ComponentGroup>
 	</Fragment>
+
 </Wix>

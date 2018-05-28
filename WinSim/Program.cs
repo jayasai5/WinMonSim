@@ -12,11 +12,13 @@ using System.Threading;
 
 namespace WinSim
 {
-    static class Program
+    public static class Program
     {
         private static Process process;
         private static Border border;
+        private static Border taskbarBorder;
         private static Color BorderColor;
+        private static Config config = new Config();
         public struct WINDOWPLACEMENT
         {
             public int length;
@@ -25,6 +27,12 @@ namespace WinSim
             public System.Drawing.Point ptMinPosition;
             public System.Drawing.Point ptMaxPosition;
             public System.Drawing.Rectangle rcNormalPosition;
+        }
+        
+        public class Config
+        {
+            public int no_of_screens;
+            public int [] colors;
         }
         public class Window
         {
@@ -58,11 +66,16 @@ namespace WinSim
         [STAThread]
         static void Main(string[] args)
         {
+            // load configuration settings
+            load_config();
             if (args == null || args.Length == 0) {
-                Application.Run(new CreateIcons());
+                // application is running in configuration mode
+                Application.Run(new CreateIcons(config));
             }
             else
             {
+                // application is running to create and monitor a border
+
                 string machine = args[0];
                 string path = args[1];
                 Window window = new Window();
@@ -104,20 +117,35 @@ namespace WinSim
                         switch (newWindowPlacement.showCmd)
                         {
                             case 1:
-                                drawBorderAndMonitor(window, BorderColor);
+                                drawBorderAndMonitor(window,false ,BorderColor);
                                 break;
                             case 2:
                                 border.Dispose();
+                                taskbarBorder.Dispose();
                                 break;
                             case 3:
-                                drawBorderAndMonitor(window, BorderColor);
+                                drawBorderAndMonitor(window, true,BorderColor);
                                 break;
                         }
                     }
                 }
                 border.Dispose();
+                taskbarBorder.Dispose();
             }
         }
+        /// <summary>
+        /// loads the configuration of the application from settings
+        /// </summary>
+        /// <returns>
+        /// configuration object
+        /// </returns>
+        private static void load_config()
+        {
+            
+            config.no_of_screens = (int)Properties.Settings.Default["screens"];
+            config.colors = Array.ConvertAll(Properties.Settings.Default["colors"].ToString().Split(' '), s => int.Parse(s));
+        }
+
         private static bool ComparePlacements(WINDOWPLACEMENT placement1, WINDOWPLACEMENT placement2) {
             if (placement1.showCmd != placement2.showCmd || placement1.length != placement2.length || placement1.ptMaxPosition != placement2.ptMaxPosition || placement1.ptMinPosition != placement2.ptMinPosition || placement1.rcNormalPosition != placement2.rcNormalPosition) {
                 return true;
@@ -145,7 +173,7 @@ namespace WinSim
 
             
         }
-        private static void drawBorderAndMonitor(Window window,Color BorderColor)
+        private static void drawBorderAndMonitor(Window window,bool desktop,Color BorderColor)
         {
             Rectangle myRect = new Rectangle();
             WINDOWPLACEMENT windowPlacement = new WINDOWPLACEMENT();
@@ -159,12 +187,41 @@ namespace WinSim
             StringBuilder className = new StringBuilder(256);
             GetClassName(window.WindowHandle, className, className.Capacity);
             if (border != null) { border.Dispose(); }
+            Rectangle taskbar = getTaskBarRectangle();
             border = new Border(BorderColor);
-            if (windowPlacement.showCmd == 1 && className.ToString() != "ApplicationFrameWindow" && className.ToString() != "Windows.UI.Core.CoreWindow")
-            {
-                border.HighLight(myRect, Program.BorderWidth);
-            }
+            border.HighLight(myRect, desktop,Program.BorderWidth);
+            taskbarBorder = new Border(BorderColor);
+            taskbarBorder.HighLight(taskbar, desktop, BorderWidth);
+
             //border.Dispose();
+        }
+
+        private static Rectangle getTaskBarRectangle()
+        {
+            //get the working area i.e the area that does not include taskbar
+            Rectangle workingArea = Screen.PrimaryScreen.WorkingArea;
+            //get the bounds of the desktop
+            Rectangle bounds = Screen.PrimaryScreen.Bounds;
+            //subtract the working area from bounds and we get the taskbar rectangle
+            if (Screen.PrimaryScreen.WorkingArea.Top > 0)
+            {
+                // taskbar is on the top of the screen
+                return new Rectangle(bounds.X, bounds.Y, bounds.Width, (bounds.Height - workingArea.Height));
+            }
+            else if (Screen.PrimaryScreen.WorkingArea.Left > 0)
+            {
+                //taskbar is on the left
+                return new Rectangle(bounds.X, bounds.Y, (bounds.Width - workingArea.Width), bounds.Height);
+            }
+            else if (Screen.PrimaryScreen.WorkingArea.Bottom > 0)
+            {
+                //taskbar is on the bottom
+                return new Rectangle(bounds.X, (workingArea.Height-bounds.Y), bounds.Width, (bounds.Height - workingArea.Height));
+            }
+            else {
+                //taskbar is on the right
+                return new Rectangle((bounds.X + workingArea.Width), bounds.Y, bounds.Width, bounds.Height);
+            }
         }
     }
 }

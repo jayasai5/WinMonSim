@@ -33,14 +33,20 @@ namespace WinSim
             base.StartPosition = FormStartPosition.Manual;
 
         }
-        public void HighLight(Rectangle rectangle, int borderWidth) {
+        public void HighLight(Rectangle rectangle, bool desktop, int borderWidth) {
             BorderWidth = borderWidth;
-            SetLocation(rectangle);
-            SetWindowPos(this.Handle, IntPtr.Zero, 0, 0, 0, 0, 0x43);
+            SetLocation(rectangle,desktop);
+            if (desktop) {
+                SetWindowPos(this.Handle, new IntPtr(-1), 0, 0, 0, 0, 0x43);
+            }
+            else
+            {
+                SetWindowPos(this.Handle, IntPtr.Zero, 0, 0, 0, 0, 0x43);
+            }
             Show();
         }
 
-        private void SetLocation(Rectangle rectangle)
+        private void SetLocation(Rectangle rectangle,bool desktop)
         {
             int width = BorderWidth;
             this.TopMost = false;
@@ -51,6 +57,17 @@ namespace WinSim
             base.Location = rectangle.Location - new Size(width, width);
             base.Size = OuterRectangle.Size;
             base.Region = region;
+            if (desktop) {
+                this.TopMost = true;
+                OuterRectangle = new Rectangle(new Point(0, 0), rectangle.Size);
+                //have to offset to make sure the border inside the bounds of desktop 
+                InnerRectangle = new Rectangle(new Point(width*2, width*2), rectangle.Size - new Size(width * 3, width * 3));
+                region = new Region(OuterRectangle);
+                region.Exclude(InnerRectangle);
+                base.Location = rectangle.Location;
+                base.Size = OuterRectangle.Size;
+                base.Region = region;
+            }
         }
         protected override void OnPaint(PaintEventArgs e)
         {
