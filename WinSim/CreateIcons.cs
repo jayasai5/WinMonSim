@@ -79,7 +79,7 @@ namespace WinSim
                     myShortcut.TargetPath = Application.StartupPath+"\\WinSim.exe"; //The exe file this shortcut executes when double clicked 
                     myShortcut.IconLocation = shortcutTarget+",0"; //Sets the icon of the shortcut to the exe`s icon 
                     myShortcut.WorkingDirectory = Application.StartupPath; //The working directory for the exe 
-                    myShortcut.Arguments = "m"+machine+" \""+shortcutTarget+"\""; //The arguments used when executing the exe 
+                    myShortcut.Arguments = machine+" \""+shortcutTarget+"\""; //The arguments used when executing the exe 
                     myShortcut.Save(); //Creates the shortcut 
                 }
                 catch (Exception ex)
