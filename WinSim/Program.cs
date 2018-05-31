@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
-
+using static WinSim.IconBorders;
 
 namespace WinSim
 {
@@ -16,7 +16,7 @@ namespace WinSim
     {
         private static Process process;
         private static Border border;
-        private static Border taskbarBorder;
+        //private static Border taskbarBorder;
         private static Color BorderColor;
         private static Color[] Colors = { Color.Pink, Color.Blue, Color.Red, Color.Green };
         private static Config config = new Config();
@@ -39,9 +39,17 @@ namespace WinSim
         {
             // load configuration settings
             load_config();
-            if (args == null || args.Length == 0) {
+            if (args == null || args.Length == 0)
+            {
                 // application is running in configuration mode
                 Application.Run(new CreateIcons(config));
+            }
+            else if (args[0] == "startup") {
+                //application draws borders around icons
+                IconBorders borders = new IconBorders();
+                List<ShortCut> shortCuts = borders.shortCuts;
+                drawIconBorder(shortCuts);
+                Thread.Sleep(10000);
             }
             else
             {
@@ -51,9 +59,10 @@ namespace WinSim
                 {
                     //set the border color of the application based on the machine index
                     machine = Int32.Parse(args[0]);
-                    BorderColor = Colors[config.colors[machine-1]];
+                    BorderColor = Colors[config.colors[machine - 1]];
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     MessageBox.Show("Invalid arguments", "Error");
                     Application.Exit();
                 }
@@ -89,11 +98,13 @@ namespace WinSim
                     {
                         changed = true;
                     }
-                    else {
+                    else
+                    {
                         changed = false;
                     }
                     //the window was in the background and it came to foreground so redraw
-                    if (background && GetForegroundWindow() == window.WindowHandle) {
+                    if (background && GetForegroundWindow() == window.WindowHandle)
+                    {
                         changed = true;
                         background = false;
                     }
@@ -105,7 +116,7 @@ namespace WinSim
                         {
                             case 1:
                                 //normal
-                                drawBorder(window,false);
+                                drawBorder(window, false);
                                 break;
                             case 2:
                                 //minimized
@@ -124,6 +135,21 @@ namespace WinSim
                 //taskbarBorder.Dispose();
             }
         }
+
+        private static void drawIconBorder(List<ShortCut> shortCuts)
+        {
+            foreach (ShortCut s in shortCuts) {
+                int machine = Int32.Parse(s.Name.Substring(s.Name.Length - 2,1));
+                Border border = new Border(Colors[config.colors[machine-1]]);
+                Rectangle rectangle = new Rectangle();
+                rectangle.X = s.Location.X;
+                rectangle.Y = s.Location.Y;
+                rectangle.Height = 50;
+                rectangle.Width = 30;
+                border.HighLight(rectangle, false, BorderWidth);
+            }
+        }
+
         /// <summary>
         /// loads the configuration of the application from settings
         /// </summary>

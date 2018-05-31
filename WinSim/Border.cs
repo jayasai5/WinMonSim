@@ -77,7 +77,9 @@ namespace WinSim
             e.Graphics.DrawRectangle(new Pen(ForeColor), rectangle2);
             e.Graphics.DrawRectangle(new Pen(ForeColor), rect);
         }
+#pragma warning disable CS0108 // Member hides inherited member; missing new keyword
         public void Show()
+#pragma warning restore CS0108 // Member hides inherited member; missing new keyword
         {
             SetWindowPos(base.Handle, IntPtr.Zero, 0, 0, 0, 0, 0x53);
         }
