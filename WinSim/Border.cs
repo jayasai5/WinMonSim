@@ -33,8 +33,15 @@ namespace WinSim
             base.StartPosition = FormStartPosition.Manual;
 
         }
+        /// <summary>
+        /// This method draws a highlighted border at a specific position of give dimensions
+        /// </summary>
+        /// <param name="rectangle">the location and dimensions of the rectangle to be drawn</param>
+        /// <param name="desktop">whether the rectangle is full screen or not</param>
+        /// <param name="borderWidth">the borderwidth of the border</param>
         public void HighLight(Rectangle rectangle, bool desktop, int borderWidth) {
             BorderWidth = borderWidth;
+            // set the location of the rectangle
             SetLocation(rectangle,desktop);
             if (desktop) {
                 SetWindowPos(this.Handle, new IntPtr(-1), 0, 0, 0, 0, 0x43);
@@ -45,7 +52,11 @@ namespace WinSim
             }
             Show();
         }
-
+        /// <summary>
+        /// Sets the location of a rectangle at a given location with given dimensions
+        /// </summary>
+        /// <param name="rectangle">position and dimensions of the rectangle to be drawn</param>
+        /// <param name="desktop">whether it is full screen or not</param>
         private void SetLocation(Rectangle rectangle,bool desktop)
         {
             int width = BorderWidth;
@@ -69,6 +80,10 @@ namespace WinSim
                 base.Region = region;
             }
         }
+        /// <summary>
+        /// override the Onpaint method to draw a colored border
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnPaint(PaintEventArgs e)
         {
 

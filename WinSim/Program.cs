@@ -68,6 +68,7 @@ namespace WinSim
                 }
                 string path = args[1]; //path to the executable to be lauched
                 Window window = new Window();
+                Border stub = new Border(Color.Aqua);
                 //start the executable from the path in command line arguments
                 process = Process.Start(path);
                 window.WindowName = process.ProcessName;
@@ -111,6 +112,7 @@ namespace WinSim
                     oldWindowPlacement = newWindowPlacement;
                     if (changed)
                     {
+                        //MessageBox.Show(stub, newWindowPlacement.showCmd.ToString(),"testing");
                         // if the window has changed then redraw the border accordingly
                         switch (newWindowPlacement.showCmd)
                         {
